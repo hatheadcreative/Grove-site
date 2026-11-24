@@ -124,7 +124,8 @@
     ukulele: ['Cs4', 'Ds4', 'E4', 'Fs4', 'Gs4', 'A4', 'B4', 'Cs5'],
     bass: ['Cs2', 'E2', 'G2', 'As2', 'Cs3'],
     violin: ['E5', 'G5', 'C6'],
-    viola: ['C4', 'E4', 'G4']
+    viola: ['C4', 'E4', 'G4'],
+    drums: ['kick', 'snare', 'snare-soft', 'hat', 'hat-soft', 'hat-open']
   };
   const PC = { C: 0, Cs: 1, D: 2, Ds: 3, E: 4, F: 5, Fs: 6, G: 7, Gs: 8, A: 9, As: 10, B: 11 };
   const midiOf = (n) => { const m = n.match(/^([A-G]s?)(\d)$/); return (+m[2] + 1) * 12 + PC[m[1]]; };
@@ -137,7 +138,7 @@
     loading[inst] = Promise.all(SAMPLE_SETS[inst].map((n) =>
       fetch(`/assets/audio/${inst}/${n}.mp3`).then((r) => { if (!r.ok) throw new Error(n); return r.arrayBuffer(); })
         .then((ab) => new Promise((res, rej) => A.ctx.decodeAudioData(ab, res, rej)))
-        .then((buf) => ({ midi: midiOf(n), buf }))
+        .then((buf) => (inst === 'drums' ? { name: n, buf } : { midi: midiOf(n), buf }))
     )).then((list) => (loaded[inst] = list)).catch(() => { loading[inst] = null; return null; });
     return loading[inst];
   }
@@ -160,6 +161,33 @@
     g.gain.setValueAtTime(v, t + Math.max(0.05, dur - 0.05)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.3);
     src.connect(g); g.connect(A.master); src.start(t); src.stop(t + dur + 0.35);
     return true;
+  }
+
+  // One-shot drum hit from the recorded kit (VCSL, CC0).
+  function hit(name, t, vol) {
+    const set = loaded.drums; if (!set) return false;
+    const s = set.find((x) => x.name === name); if (!s) return false;
+    const src = A.ctx.createBufferSource(); src.buffer = s.buf;
+    const g = A.ctx.createGain(); g.gain.value = vol == null ? 0.8 : vol;
+    src.connect(g); g.connect(A.master); src.start(t);
+    return true;
+  }
+  // A real-kit groove at 112 BPM: hats on eighths, kick on 1 and 3 (plus a push), snare on 2 and 4.
+  function kitGroove(t, bars, fill) {
+    const b = 60 / 112; const e = b / 2;
+    for (let bar = 0; bar < bars; bar++) {
+      const t0 = t + bar * 4 * b;
+      for (let i = 0; i < 8; i++) hit(i % 2 ? 'hat-soft' : 'hat', t0 + i * e, i % 2 ? 0.28 : 0.42);
+      hit('kick', t0, 0.95); hit('kick', t0 + 2 * b, 0.9); hit('kick', t0 + 2.5 * b, 0.6);
+      hit('snare', t0 + b, 0.75); hit('snare', t0 + 3 * b, 0.8);
+      hit('snare-soft', t0 + 3.75 * b, 0.25);
+    }
+    const tEnd = t + bars * 4 * b;
+    if (fill) {
+      [0, 0.25, 0.5, 0.75].forEach((x, i) => hit(i < 2 ? 'snare-soft' : 'snare', tEnd - b + x * b, 0.45 + i * 0.12));
+      hit('kick', tEnd, 0.95); hit('hat-open', tEnd, 0.55);
+    }
+    return b;
   }
 
   // Schedules a phrase; returns its length in seconds. Uses recordings when loaded, synth otherwise.
@@ -192,9 +220,12 @@
       case 'viola':
         if (has('viola')) { S('viola', 60, 0, 0.85, 0.75); S('viola', 64, 0.82, 0.65, 0.75); S('viola', 67, 1.45, 1.3, 0.8); return 3; }
         break;
-      case 'drums': { const b = groove(t, 1); kick(t + 3.5 * b); kick(t + 4 * b); noise(t + 4 * b, 0.9, 'highpass', 5000, 0.22); return 3; }
+      case 'drums': {
+        if (has('drums')) { const b = kitGroove(t, 1, true); return 4 * b + 1.1; }
+        const b = groove(t, 1); kick(t + 3.5 * b); kick(t + 4 * b); noise(t + 4 * b, 0.9, 'highpass', 5000, 0.22); return 3;
+      }
       case 'band': {
-        const b = groove(t, 2);
+        const b = has('drums') ? kitGroove(t, 2, false) : groove(t, 2);
         [36, 36, 43, 43, 41, 41, 43, 47].forEach((n, i) => { if (!S('bass', n, i * b, b * 0.9, 0.85)) pluck(hz(n), t + i * b, b * 0.95, { damp: 0.997, lp: 900, vol: 0.8 }); });
         [[60, 64, 67], [60, 64, 67], [53, 57, 60, 65], [55, 59, 62, 67]].forEach((ch, k) => ch.forEach((n) => { if (!S('piano', n + 12, k * 2 * b, 2 * b, 0.22)) piano(hz(n + 12), t + k * 2 * b, 2 * b, 0.12); }));
         return 8 * b + 0.6;
@@ -209,7 +240,7 @@
     if (id === 'viola') { bowed(hz(60), t, 0.9, 0.2, true); bowed(hz(64), t + 0.85, 0.7, 0.2, true); bowed(hz(67), t + 1.5, 1.3, 0.22, true); return 2.9; }
     return 0;
   }
-  const SETS_FOR = { piano: ['piano'], jazzpiano: ['piano'], guitar: ['guitar'], ukulele: ['ukulele'], bass: ['bass'], violin: ['violin'], viola: ['viola'], band: ['bass', 'piano'], drums: [] };
+  const SETS_FOR = { piano: ['piano'], jazzpiano: ['piano'], guitar: ['guitar'], ukulele: ['ukulele'], bass: ['bass'], violin: ['violin'], viola: ['viola'], band: ['drums', 'bass', 'piano'], drums: ['drums'] };
   // Plays a phrase once its recordings are ready; resolves to the phrase length.
   function playSound(id) {
     if (!ensure()) return Promise.resolve(0);
