@@ -1,0 +1,29 @@
+{
+  "name": "Grove Music School",
+  "tagline": "Music. Community. Growth.",
+  "address": [
+    "40 Underhill Drive",
+    "Toronto, ON M3A 2J5"
+  ],
+  "phone": "(416) 270-5953",
+  "phoneHref": "tel:4162705953",
+  "email": "director@grovemusicschool.com",
+  "emailSubject": "Inquiry from website",
+  "directionsUrl": "https://www.google.com/maps/search/?api=1&query=40+Underhill+Drive+Toronto+ON+M3A+2J5",
+  "instagram": "https://www.instagram.com/grovemusicschool/",
+  "facebook": "https://www.facebook.com/grovemusicschool",
+  "teacherLogin": "https://grovemusicschool.opus1.io/",
+  "replyTime": "[X business days]",
+  "staging": true,
+  "home": {
+    "eyebrow": "Toronto · All ages · All levels",
+    "headline": [
+      "Music.",
+      "Community.",
+      "Growth."
+    ],
+    "intro": "Private lessons and ensembles for every age and stage, taught by working musicians in a warm, welcoming community.",
+    "primaryCta": "Book a free trial lesson",
+    "secondaryCta": "Explore programs"
+  }
+}

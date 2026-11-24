@@ -1,0 +1,37 @@
+[
+  {
+    "id": "piano",
+    "name": "Piano",
+    "line": "Classical, jazz and pop. The foundation for everything else."
+  },
+  {
+    "id": "voice",
+    "name": "Voice",
+    "line": "Find your voice, build confidence and sing what you love."
+  },
+  {
+    "id": "guitar",
+    "name": "Guitar",
+    "line": "Acoustic or electric, from first chords to first solo."
+  },
+  {
+    "id": "violin",
+    "name": "Violin",
+    "line": "Tone, bowing and technique, at your own pace."
+  },
+  {
+    "id": "bass",
+    "name": "Bass Guitar",
+    "line": "Lock in the groove. Every band needs you."
+  },
+  {
+    "id": "drums",
+    "name": "Drums",
+    "line": "Rhythm, coordination and a whole lot of fun."
+  },
+  {
+    "id": "ukulele",
+    "name": "Ukulele",
+    "line": "Four strings, quick wins. A perfect first instrument."
+  }
+]

@@ -1,0 +1,330 @@
+/* Grove Music School: site behaviour. No dependencies. */
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- Sound preference ---------------- */
+  let soundOn = true;
+  try { soundOn = localStorage.getItem('grove:sound') !== 'off'; } catch (e) {}
+  const syncSound = () => {
+    $$('[data-sound-toggle]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(soundOn));
+      const l = $('[data-sound-label]', b); if (l) l.textContent = soundOn ? 'Sound on' : 'Sound off';
+    });
+    if (A.master) A.master.gain.setTargetAtTime(soundOn ? 0.7 : 0, A.ctx.currentTime, 0.03);
+  };
+
+  /* ---------------- Audio engine (Web Audio, synthesized) ---------------- */
+  const A = { ctx: null, master: null, analyser: null, noise: null, ks: {} };
+  function ensure() {
+    if (!A.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+      const x = new AC(); A.ctx = x;
+      A.master = x.createGain(); A.master.gain.value = soundOn ? 0.7 : 0;
+      const comp = x.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+      A.analyser = x.createAnalyser(); A.analyser.fftSize = 1024;
+      A.master.connect(comp); comp.connect(A.analyser); A.analyser.connect(x.destination);
+      const nb = x.createBuffer(1, x.sampleRate, x.sampleRate); const nd = nb.getChannelData(0);
+      for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+      A.noise = nb;
+    }
+    if (A.ctx.state === 'suspended') A.ctx.resume();
+    return true;
+  }
+  const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  function piano(f, t, dur, v) {
+    const x = A.ctx; const o1 = x.createOscillator(), o2 = x.createOscillator(), o3 = x.createOscillator();
+    o1.type = 'triangle'; o2.type = 'sine'; o3.type = 'sine';
+    o1.frequency.value = f; o2.frequency.value = f * 2.002; o3.frequency.value = f * 0.998;
+    const lp = x.createBiquadFilter(); lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(Math.min(f * 9, 7000), t); lp.frequency.exponentialRampToValueAtTime(Math.max(f * 1.5, 380), t + dur);
+    const h = x.createGain(); h.gain.value = 0.22; const g = x.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v || 0.3, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o1.connect(lp); o3.connect(lp); o2.connect(h); h.connect(lp); lp.connect(g); g.connect(A.master);
+    [o1, o2, o3].forEach((o) => { o.start(t); o.stop(t + dur + 0.05); });
+  }
+  function pluck(f, t, dur, o) {
+    const x = A.ctx; const sr = x.sampleRate; const damp = o.damp || 0.996;
+    const key = f.toFixed(2) + '|' + damp + '|' + dur; let b = A.ks[key];
+    if (!b) {
+      const len = Math.floor(sr * dur); b = x.createBuffer(1, len, sr); const d = b.getChannelData(0);
+      const N = Math.max(2, Math.round(sr / f));
+      for (let i = 0; i < N && i < len; i++) d[i] = Math.random() * 2 - 1;
+      for (let i = N; i < len; i++) d[i] = (d[i - N] + d[i - N + 1]) * 0.5 * damp;
+      A.ks[key] = b;
+    }
+    const s = x.createBufferSource(); s.buffer = b;
+    const lp = x.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = o.lp || 5000;
+    const g = x.createGain(); g.gain.value = o.vol || 0.4;
+    s.connect(lp); lp.connect(g); g.connect(A.master); s.start(t);
+  }
+  function bowed(f, t, dur, vol, dark) {
+    const x = A.ctx; const a = x.createOscillator(), b = x.createOscillator();
+    a.type = 'sawtooth'; b.type = 'sawtooth'; a.frequency.value = f; b.frequency.value = f; b.detune.value = 6;
+    const lfo = x.createOscillator(); lfo.frequency.value = 5.5;
+    const dp = x.createGain(); dp.gain.setValueAtTime(0, t); dp.gain.linearRampToValueAtTime(f * 0.006, t + 0.35);
+    lfo.connect(dp); dp.connect(a.frequency); dp.connect(b.frequency);
+    const lp = x.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = dark ? 1700 : 2600; lp.Q.value = 0.8;
+    const pk = x.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = dark ? 700 : 1100; pk.gain.value = 5;
+    const g = x.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.18);
+    g.gain.setValueAtTime(vol, t + Math.max(0.2, dur - 0.25)); g.gain.linearRampToValueAtTime(0.0001, t + dur);
+    a.connect(lp); b.connect(lp); lp.connect(pk); pk.connect(g); g.connect(A.master);
+    [a, b, lfo].forEach((n) => { n.start(t); n.stop(t + dur + 0.05); });
+  }
+  function voice(f, t, dur) {
+    const x = A.ctx; const src = x.createOscillator(); src.type = 'sawtooth'; src.frequency.value = f;
+    const lfo = x.createOscillator(); lfo.frequency.value = 5.2;
+    const dp = x.createGain(); dp.gain.setValueAtTime(0, t); dp.gain.linearRampToValueAtTime(f * 0.012, t + 0.4);
+    lfo.connect(dp); dp.connect(src.frequency);
+    const out = x.createGain(); out.gain.setValueAtTime(0.0001, t); out.gain.linearRampToValueAtTime(0.5, t + 0.12);
+    out.gain.setValueAtTime(0.5, t + Math.max(0.15, dur - 0.25)); out.gain.linearRampToValueAtTime(0.0001, t + dur);
+    [[750, 7, 1], [1150, 9, 0.55], [2700, 12, 0.18]].forEach(([fr, q, gv]) => {
+      const bp = x.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = fr; bp.Q.value = q;
+      const gg = x.createGain(); gg.gain.value = gv * 2.2; src.connect(bp); bp.connect(gg); gg.connect(out);
+    });
+    out.connect(A.master); [src, lfo].forEach((n) => { n.start(t); n.stop(t + dur + 0.05); });
+  }
+  function kick(t) {
+    const x = A.ctx; const o = x.createOscillator(); const g = x.createGain();
+    o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+    g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+    o.connect(g); g.connect(A.master); o.start(t); o.stop(t + 0.45);
+  }
+  function noise(t, dur, type, freq, vol) {
+    const x = A.ctx; const s = x.createBufferSource(); s.buffer = A.noise;
+    const f = x.createBiquadFilter(); f.type = type; f.frequency.value = freq;
+    const g = x.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(A.master); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
+  }
+  function snare(t) {
+    noise(t, 0.2, 'highpass', 1400, 0.5);
+    const x = A.ctx; const o = x.createOscillator(); const g = x.createGain(); o.type = 'triangle';
+    o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(140, t + 0.1);
+    g.gain.setValueAtTime(0.35, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    o.connect(g); g.connect(A.master); o.start(t); o.stop(t + 0.15);
+  }
+  const hat = (t, v) => noise(t, 0.05, 'highpass', 7500, v || 0.18);
+  function groove(t, bars) {
+    const b = 60 / 112;
+    for (let i = 0; i < 8 * bars; i++) {
+      const tt = t + i * b / 2; hat(tt, i % 2 ? 0.1 : 0.18);
+      if (i % 4 === 0) kick(tt); if (i % 4 === 2) snare(tt);
+    }
+    return b;
+  }
+
+  // Returns the phrase length in seconds.
+  function playSound(id) {
+    if (!ensure()) return 0;
+    const t = A.ctx.currentTime + 0.04; let len = 2.4;
+    const strum = (chords, dur, o) => chords.forEach(([dt, ch]) => ch.forEach((n, i) => pluck(hz(n), t + dt + i * (o.spread || 0.024), dur, o)));
+    switch (id) {
+      case 'piano': [60, 64, 67, 72, 76, 79].forEach((n, i) => piano(hz(n), t + i * 0.11, 1.9)); len = 2.3; break;
+      case 'jazzpiano':
+        [[50, 53, 57, 60, 64], [55, 59, 62, 65, 69], [48, 52, 55, 59, 62]].forEach((ch, k) => ch.forEach((n, i) => piano(hz(n), t + k * 0.62 + i * 0.03, 1.4, 0.2)));
+        [76, 74, 72, 71, 72].forEach((n, i) => piano(hz(n), t + 0.15 + i * 0.31 + (i % 2 ? 0.08 : 0), 0.6, 0.24)); len = 2.6; break;
+      case 'guitar': strum([[0, [52, 59, 64, 67, 71, 76]], [0.5, [52, 59, 64, 67, 71, 76]], [0.95, [55, 59, 62, 67, 71, 79]]], 2.2, { damp: 0.995, lp: 4200, vol: 0.3 }); len = 2.5; break;
+      case 'ukulele': strum([[0, [67, 60, 64, 69]], [0.28, [67, 60, 64, 69]], [0.56, [67, 60, 64, 69]], [0.84, [67, 62, 65, 71]], [1.12, [67, 60, 64, 72]]], 1.4, { damp: 0.991, lp: 5200, vol: 0.32, spread: 0.018 }); len = 2; break;
+      case 'bass': [36, 43, 48, 43, 41, 45, 48].forEach((n, i) => pluck(hz(n), t + i * 0.25, 1.4, { damp: 0.997, lp: 900, vol: 0.9 })); len = 2.1; break;
+      case 'violin': bowed(hz(76), t, 0.8, 0.16); bowed(hz(79), t + 0.75, 0.6, 0.16); bowed(hz(84), t + 1.3, 1.3, 0.18); len = 2.7; break;
+      case 'viola': bowed(hz(60), t, 0.9, 0.2, true); bowed(hz(64), t + 0.85, 0.7, 0.2, true); bowed(hz(67), t + 1.5, 1.3, 0.22, true); len = 2.9; break;
+      case 'voice': voice(hz(67), t, 0.9); voice(hz(72), t + 0.85, 1.4); break;
+      case 'drums': { const b = groove(t, 1); kick(t + 3.5 * b); kick(t + 4 * b); noise(t + 4 * b, 0.9, 'highpass', 5000, 0.22); len = 3; break; }
+      case 'band': {
+        const b = groove(t, 2);
+        [36, 36, 43, 43, 41, 41, 43, 47].forEach((n, i) => pluck(hz(n), t + i * b, b * 0.95, { damp: 0.997, lp: 900, vol: 0.8 }));
+        [[60, 64, 67], [60, 64, 67], [53, 57, 60, 65], [55, 59, 62, 67]].forEach((ch, k) => ch.forEach((n) => piano(hz(n + 12), t + k * 2 * b, 2 * b, 0.12)));
+        len = 8 * b + 0.6; break;
+      }
+    }
+    return len;
+  }
+
+  /* ---------------- Play buttons (instrument cards, teacher "Hear" buttons) ---------------- */
+  let playTimer;
+  $$('[data-play]').forEach((btn) => btn.addEventListener('click', () => {
+    const id = btn.dataset.play;
+    const len = playSound(id);
+    $$('.inst.is-playing, .hear.on').forEach((el) => el.classList.remove('is-playing', 'on'));
+    const card = btn.closest('.inst'); const target = card || btn;
+    target.classList.add(card ? 'is-playing' : 'on');
+    clearTimeout(playTimer);
+    playTimer = setTimeout(() => target.classList.remove('is-playing', 'on'), len * 1000);
+  }));
+
+  /* ---------------- Keyboard ---------------- */
+  const flash = (midi, ms) => {
+    const k = $(`[data-midi="${midi}"]`); if (!k) return;
+    k.classList.add('on'); setTimeout(() => k.classList.remove('on'), ms);
+  };
+  const press = (midi) => { if (ensure()) piano(hz(midi), A.ctx.currentTime + 0.005, 1.7); flash(midi, 200); };
+  $$('[data-midi]').forEach((k) => {
+    const m = +k.dataset.midi;
+    k.addEventListener('pointerdown', (e) => { e.preventDefault(); press(m); });
+    k.addEventListener('click', (e) => { if (e.detail === 0) press(m); }); // keyboard activation
+  });
+  const demoBtn = $('[data-demo]');
+  if (demoBtn) {
+    let busy = false;
+    demoBtn.addEventListener('click', () => {
+      if (busy || !ensure()) return; busy = true;
+      const label = $('[data-demo-label]', demoBtn); if (label) label.textContent = 'Playing…';
+      const tune = [60, 60, 67, 67, 69, 69, 67, null, 65, 65, 64, 64, 62, 62, 60];
+      const step = 0.38; const t0 = A.ctx.currentTime + 0.05;
+      tune.forEach((n, i) => {
+        if (n === null) return;
+        piano(hz(n), t0 + i * step, 1.2); piano(hz(n - 12), t0 + i * step, 1.2);
+        setTimeout(() => flash(n, step * 800), 50 + i * step * 1000);
+      });
+      setTimeout(() => { busy = false; if (label) label.textContent = 'Hear a demo'; }, tune.length * step * 1000 + 600);
+    });
+  }
+
+  /* ---------------- Waveform ---------------- */
+  const canvas = $('[data-wave]');
+  if (canvas) {
+    let energy = 0; let buf = null; const t0 = performance.now();
+    const draw = () => {
+      const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+      const g = canvas.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+      const t = reduced ? 0 : (performance.now() - t0) / 1000;
+      let data = null, e = 0;
+      if (A.analyser && A.ctx.state === 'running') {
+        if (!buf) buf = new Uint8Array(A.analyser.fftSize);
+        A.analyser.getByteTimeDomainData(buf); data = buf;
+        for (let i = 0; i < data.length; i += 8) { const v = (data[i] - 128) / 128; e += v * v; }
+        e = Math.sqrt(e / (data.length / 8));
+      }
+      energy = energy * 0.86 + e * 0.14;
+      [{ a: 0.16, amp: 12, f: 1.1, s: 0.55, o: 0, lw: 1.2 }, { a: 0.32, amp: 18, f: 0.7, s: -0.38, o: 2, lw: 1.2 }, { a: 0.9, amp: 7, f: 1.6, s: 0.9, o: 4, lw: 2.2 }].forEach((L, li) => {
+        g.beginPath();
+        for (let x = 0; x <= w; x += 3) {
+          const p = x / w; const taper = Math.sin(p * Math.PI);
+          let y = h / 2 + Math.sin(p * Math.PI * 2 * L.f + t * L.s + L.o) * L.amp * taper;
+          if (li === 2 && data) { const idx = Math.floor(p * (data.length - 1)); y += ((data[idx] - 128) / 128) * h * 0.9 * taper; }
+          else y += Math.sin(p * 34 + t * 5 + li) * energy * h * 1.4 * taper * (li + 1) / 3;
+          x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+        }
+        const alpha = li === 2 ? Math.min(1, L.a + energy * 3) : L.a + energy;
+        g.strokeStyle = 'rgba(0,173,107,' + alpha.toFixed(3) + ')'; g.lineWidth = L.lw; g.lineCap = 'round'; g.stroke();
+      });
+    };
+    let visible = true;
+    if ('IntersectionObserver' in window) new IntersectionObserver((es) => { visible = es[0].isIntersecting; }).observe(canvas);
+    const loop = () => { if (visible) draw(); requestAnimationFrame(loop); };
+    if (reduced) { draw(); window.addEventListener('resize', draw); } else requestAnimationFrame(loop);
+  }
+
+  /* ---------------- Header: sound toggle + mobile menu ---------------- */
+  $$('[data-sound-toggle]').forEach((b) => b.addEventListener('click', () => {
+    soundOn = !soundOn; try { localStorage.setItem('grove:sound', soundOn ? 'on' : 'off'); } catch (e) {}
+    syncSound();
+  }));
+  syncSound();
+  const menuBtn = $('[data-menu-toggle]'); const mnav = $('#mobile-nav');
+  if (menuBtn && mnav) {
+    menuBtn.addEventListener('click', () => {
+      const open = mnav.hidden; mnav.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open));
+    });
+    $$('a', mnav).forEach((a) => a.addEventListener('click', () => { mnav.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); }));
+  }
+
+  /* ---------------- Teacher filter + return highlight ---------------- */
+  const grid = $('[data-team-grid]');
+  if (grid) {
+    const cards = $$('.teacher[data-insts]', grid); const count = $('[data-filter-count]');
+    $$('[data-filter]').forEach((chip) => chip.addEventListener('click', () => {
+      const f = chip.dataset.filter;
+      $$('[data-filter]').forEach((c) => { const on = c === chip; c.classList.toggle('on', on); c.setAttribute('aria-pressed', String(on)); });
+      let n = 0;
+      cards.forEach((card) => {
+        const show = f === 'All' || card.dataset.insts.split('|').includes(f);
+        card.classList.toggle('is-filtered-out', !show); if (show) n++;
+      });
+      if (count) count.textContent = f === 'All' ? `Showing all ${cards.length} teachers` : `${n} ${f.toLowerCase()} teacher${n === 1 ? '' : 's'}`;
+    }));
+  }
+  if (location.hash.startsWith('#t-')) {
+    const el = document.getElementById(location.hash.slice(1));
+    if (el) { el.classList.add('is-back'); setTimeout(() => el.classList.remove('is-back'), 6000); }
+  }
+
+  /* ---------------- Booking form ---------------- */
+  const form = $('[data-booking]');
+  if (form) {
+    const done = $('[data-booking-done]');
+    const ensInfo = JSON.parse(form.dataset.ensInfo || '{}');
+    const prices = { 30: '$28.50', 45: '$42.75', 60: '$57.00' };
+    const state = { mode: 'new', who: 'child', instrument: 'Piano', ensemble: Object.keys(ensInfo)[0] || '', length: '30' };
+    const goals = new Set();
+
+    const setGroup = (group, value) => {
+      const btns = $$(`[data-group="${group}"]`, form);
+      if (!btns.some((b) => b.dataset.value === value)) return;
+      state[group] = value;
+      btns.forEach((b) => { const on = b.dataset.value === value; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+      const hidden = form.elements[group]; if (hidden) hidden.value = value;
+      render();
+    };
+    function render() {
+      const isNew = state.mode === 'new'; const ens = state.instrument === 'An ensemble';
+      $$('[data-show-when="ensemble"]', form).forEach((el) => { el.hidden = !ens; });
+      $$('[data-show-when="private"]', form).forEach((el) => { el.hidden = ens; });
+      $$('[data-show-when="child"]', form).forEach((el) => {
+        el.hidden = state.who !== 'child';
+        const input = $('input', el); if (input) input.required = state.who === 'child';
+      });
+      const priceLine = $('[data-price-line]', form);
+      if (priceLine) priceLine.textContent = ens ? (ensInfo[state.ensemble] || '') : (isNew ? `After your free trial: ${prices[state.length]} per lesson, billed monthly.` : `Tuition: ${prices[state.length]} per lesson, billed monthly.`);
+      const title = $('[data-book-title]'); if (title) title.textContent = isNew ? 'Book your free trial' : 'Register for 2026/27';
+      const submit = $('[data-submit-label]', form); if (submit) submit.textContent = isNew ? 'Request my free trial' : 'Send my registration';
+    }
+    $$('[data-group]', form).forEach((b) => b.addEventListener('click', () => setGroup(b.dataset.group, b.dataset.value)));
+    $$('[data-toggle="goal"]', form).forEach((b) => b.addEventListener('click', () => {
+      const v = b.dataset.value; goals.has(v) ? goals.delete(v) : goals.add(v);
+      const on = goals.has(v); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
+      form.elements.goalTags.value = Array.from(goals).join(', ');
+    }));
+
+    // Presets from the URL, e.g. /book/?inst=Piano&len=45&teacher=Vena%20Lin
+    const p = new URLSearchParams(location.search);
+    if (p.get('mode')) setGroup('mode', p.get('mode'));
+    if (p.get('inst')) setGroup('instrument', p.get('inst') === 'Bass' ? 'Bass Guitar' : p.get('inst'));
+    if (p.get('ens')) setGroup('ensemble', p.get('ens'));
+    if (p.get('len')) setGroup('length', String(p.get('len')));
+    if (p.get('teacher') && form.elements.teacher) {
+      const opt = Array.from(form.elements.teacher.options).find((o) => o.value === p.get('teacher'));
+      if (opt) form.elements.teacher.value = opt.value;
+    }
+    render();
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const err = $('[data-form-error]', form);
+      const missing = $$('input[required]', form).filter((i) => !i.closest('[hidden]') && !i.value.trim());
+      const email = form.elements.email;
+      if (missing.length || (email.value && !email.checkValidity())) {
+        err.textContent = missing.length ? 'Please fill in the highlighted fields.' : 'Please check the email address.';
+        err.hidden = false;
+        $$('input', form).forEach((i) => i.setAttribute('aria-invalid', String(missing.includes(i) || (i === email && !email.checkValidity()))));
+        (missing[0] || email).focus();
+        return;
+      }
+      err.hidden = true;
+      // Staging: nothing is sent. At launch, POST new FormData(form) to Opus1 or a form service here.
+      const ens = state.instrument === 'An ensemble';
+      const summary = ens ? state.ensemble : `${state.length}-minute ${state.instrument.toLowerCase()}`;
+      $('[data-done-msg]', done).textContent = state.mode === 'new'
+        ? `Thanks! We'll be in touch to schedule a free ${summary} trial.`
+        : `Thanks! We'll confirm the ${summary} spot for 2026/27.`;
+      form.hidden = true; done.hidden = false; done.focus && done.setAttribute('tabindex', '-1'); done.focus();
+      if (ensure()) { const t = A.ctx.currentTime + 0.03; [72, 76, 79, 84].forEach((n, i) => piano(hz(n), t + i * 0.09, 1.6)); }
+    });
+    const reset = $('[data-booking-reset]');
+    if (reset) reset.addEventListener('click', () => { form.reset(); goals.clear(); $$('[data-toggle="goal"]', form).forEach((b) => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }); done.hidden = true; form.hidden = false; render(); });
+  }
+})();

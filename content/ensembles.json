@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Music Makers",
+    "description": "Singing, rhythm, movement, games and making music together. Builds confidence, musicianship and teamwork.",
+    "ages": "Ages 6–12",
+    "schedule": "Mondays 5:15–6:00 PM",
+    "length": "45 min",
+    "price": "$15"
+  },
+  {
+    "name": "Ukulele Ensemble",
+    "description": "Chords, strumming patterns and songs, learned together. Groups formed by enrolment and experience.",
+    "ages": "Ages 8+",
+    "schedule": "Schedule by group",
+    "length": "45 min",
+    "price": "$20"
+  },
+  {
+    "name": "Guitar Ensemble",
+    "description": "Build guitar skills and confidence in a supportive group setting.",
+    "ages": "All ages",
+    "schedule": "Schedule by group",
+    "length": "45 min",
+    "price": "$20"
+  },
+  {
+    "name": "Pop/Rock Band",
+    "description": "Bands formed by age, experience and instrument. Rehearse, collaborate and take the stage.",
+    "ages": "By group",
+    "schedule": "Schedule by group",
+    "length": "60 min",
+    "price": "$25"
+  },
+  {
+    "name": "Ganbare Choir",
+    "description": "A Japanese-language choir singing traditional songs and popular music, with community performances.",
+    "ages": "Children's & adult choirs",
+    "schedule": "[Schedule TBC]",
+    "length": "[Length TBC]",
+    "price": "$12.50"
+  }
+]

@@ -1,0 +1,109 @@
+{
+  "year": "2026–27",
+  "lessons": [
+    {
+      "minutes": 30,
+      "price": "28.50",
+      "note": "a great place for younger beginners to start"
+    },
+    {
+      "minutes": 45,
+      "price": "42.75",
+      "note": "more time for repertoire and theory",
+      "featured": true
+    },
+    {
+      "minutes": 60,
+      "price": "57.00",
+      "note": "for serious goals and advanced players"
+    }
+  ],
+  "ensembleTable": [
+    {
+      "name": "Music Makers",
+      "ages": "Ages 6–12",
+      "length": "45 min",
+      "price": "$15"
+    },
+    {
+      "name": "Ukulele Ensemble",
+      "ages": "Ages 8+",
+      "length": "45 min",
+      "price": "$20"
+    },
+    {
+      "name": "Guitar Ensemble",
+      "ages": "All ages",
+      "length": "45 min",
+      "price": "$20"
+    },
+    {
+      "name": "Pop/Rock Band",
+      "ages": "By group",
+      "length": "60 min",
+      "price": "$25"
+    },
+    {
+      "name": "Ganbare Children's Choir",
+      "ages": "Children",
+      "length": "[TBC]",
+      "price": "$12.50"
+    },
+    {
+      "name": "Ganbare Adult Choir",
+      "ages": "Adults",
+      "length": "[TBC]",
+      "price": "$12.50"
+    }
+  ],
+  "perks": [
+    "Free trial lesson",
+    "Billed monthly",
+    "Prorated mid-term",
+    "5% sibling discount",
+    "Financial assistance available",
+    "Recitals & performances included"
+  ],
+  "faq": [
+    {
+      "q": "How does the free trial work?",
+      "a": "New students get a free trial lesson. Book through the form, and we'll match you with a teacher and a time. There's no commitment to continue."
+    },
+    {
+      "q": "How is tuition billed?",
+      "a": "Tuition is invoiced monthly, based on your lesson length and the number of lessons that month."
+    },
+    {
+      "q": "Can I join partway through the year?",
+      "a": "Yes. Students who join mid-term pay a prorated amount for the remainder of the term."
+    },
+    {
+      "q": "Do you offer sibling discounts?",
+      "a": "Yes. Families get a 5% discount for each additional sibling enrolled."
+    },
+    {
+      "q": "Is financial assistance available?",
+      "a": "Yes. Grove is committed to accessible music education. Contact the director to talk about options. All conversations are confidential."
+    },
+    {
+      "q": "Are there recitals?",
+      "a": "Students can take part in recitals and community performances throughout the year."
+    },
+    {
+      "q": "What if we miss a lesson?",
+      "a": "[Grove to confirm: cancellation notice, makeup lessons and teacher absences.]"
+    },
+    {
+      "q": "When does the school year run?",
+      "a": "[Grove to confirm: term dates and holiday breaks for 2026/27.]"
+    },
+    {
+      "q": "How do I pay?",
+      "a": "[Grove to confirm: accepted payment methods.]"
+    },
+    {
+      "q": "How do I withdraw?",
+      "a": "[Grove to confirm: notice period and refund policy.]"
+    }
+  ]
+}

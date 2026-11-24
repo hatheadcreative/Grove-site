@@ -1,0 +1,783 @@
+[
+  {
+    "slug": "kye-andrews",
+    "name": "Kye Andrews",
+    "firstName": "Kye",
+    "photo": "/assets/img/teachers/kye-andrews.jpg",
+    "photoMono": "/assets/img/teachers/kye-andrews-c.jpg",
+    "focus": "50% 22%",
+    "eyebrow": "Director",
+    "badge": "Director",
+    "intro": "Multi-instrumentalist, music director and the driving force behind Grove's mission: great music education that's accessible, affordable and rooted in community.",
+    "bio": [
+      "Kye Andrews leads Grove Music School with a simple belief: everyone deserves access to great music education. He's a multi-instrumentalist, educator and music director with deep experience across teaching, performance, ensemble leadership and production.",
+      "For nearly a decade he served as Director of Music at Forest Grove United Church, and he continues his music and digital production work at Jubilee United Church. He also leads the Grove Band, bringing students and teachers together to perform and record.",
+      "At Grove, his focus is creativity, community, and helping students of every age grow in skill and confidence."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Grove Music School",
+        "detail": "Director"
+      },
+      {
+        "title": "Forest Grove United Church",
+        "detail": "Director of Music, ~10 yrs"
+      },
+      {
+        "title": "Jubilee United Church",
+        "detail": "Music & digital production"
+      },
+      {
+        "title": "The Grove Band",
+        "detail": "Leader"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "band",
+        "label": "Hear the Grove Band"
+      }
+    ],
+    "bookInstruments": [
+      "Piano",
+      "Voice",
+      "Guitar",
+      "Violin",
+      "Bass",
+      "Drums",
+      "Ukulele"
+    ],
+    "bookWithTeacher": false,
+    "roles": [
+      {
+        "role": "Director",
+        "where": "Grove Music School"
+      },
+      {
+        "role": "Band leader",
+        "where": "The Grove Band"
+      },
+      {
+        "role": "Production",
+        "where": "Music & digital"
+      }
+    ]
+  },
+  {
+    "slug": "erika-wood",
+    "name": "Érika Wood",
+    "firstName": "Érika",
+    "photo": "/assets/img/teachers/erika-wood.jpg",
+    "photoMono": "/assets/img/teachers/erika-wood-c.jpg",
+    "focus": "50% 30%",
+    "eyebrow": "Voice · Piano · Ukulele",
+    "badge": null,
+    "intro": "U of T–trained vocalist and certified teacher with nearly ten years of helping students find their voice, in pop, rock and classical.",
+    "bio": [
+      "Érika Wood is a Toronto-based musician and certified teacher with a Bachelor of Music in Vocal Performance from the University of Toronto.",
+      "She has spent nearly a decade teaching voice and piano, working with private students and children's choirs in Toronto, Vancouver and Kingston. Her lessons span pop, rock and classical.",
+      "Students of every age can expect a warm, encouraging room where it's safe to try, stretch and grow."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "University of Toronto",
+        "detail": "BMus, Vocal Performance"
+      },
+      {
+        "title": "Children's choirs",
+        "detail": "Toronto · Vancouver · Kingston"
+      },
+      {
+        "title": "Certified teacher",
+        "detail": "~10 years teaching"
+      },
+      {
+        "title": "Pop · Rock · Classical",
+        "detail": "Styles"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "voice",
+        "label": "Hear voice"
+      },
+      {
+        "id": "piano",
+        "label": "Hear piano"
+      },
+      {
+        "id": "ukulele",
+        "label": "Hear ukulele"
+      }
+    ],
+    "bookInstruments": [
+      "Voice",
+      "Piano",
+      "Ukulele"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Voice",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Piano",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      },
+      {
+        "instrument": "Ukulele",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "vena-lin",
+    "name": "Vena Lin",
+    "firstName": "Vena",
+    "photo": "/assets/img/teachers/vena-lin.jpg",
+    "photoMono": "/assets/img/teachers/vena-lin-c.jpg",
+    "focus": "50% 30%",
+    "eyebrow": "Violin · Viola · Piano",
+    "badge": null,
+    "intro": "Orchestral violist, pianist and educator who has shared the stage with Josh Groban and Sarah Brightman, and teaches every level from first bow hold to advanced.",
+    "bio": [
+      "Vena Lin is a professional violist, pianist and music educator who brings the orchestra world straight into the lesson room. She performs regularly with Esprit Orchestra, the Hamilton Philharmonic, the Ontario Philharmonic and the Brantford Symphony, and has stepped in as substitute principal violist with the Niagara Symphony.",
+      "Beyond the concert hall, she has performed alongside artists including Josh Groban and Sarah Brightman.",
+      "Vena holds a Bachelor of Music in Viola Performance from the University of Toronto, along with a master's degree and an Advanced Certificate Diploma in Viola Performance."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Esprit Orchestra",
+        "detail": "Viola"
+      },
+      {
+        "title": "Hamilton Philharmonic",
+        "detail": "Viola"
+      },
+      {
+        "title": "Ontario Philharmonic",
+        "detail": "Viola"
+      },
+      {
+        "title": "Brantford Symphony",
+        "detail": "Viola"
+      },
+      {
+        "title": "Niagara Symphony",
+        "detail": "Sub. principal viola"
+      },
+      {
+        "title": "Josh Groban · Sarah Brightman",
+        "detail": "Performed with"
+      },
+      {
+        "title": "University of Toronto",
+        "detail": "BMus, Viola Performance"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "violin",
+        "label": "Hear the violin"
+      },
+      {
+        "id": "viola",
+        "label": "Hear the viola"
+      },
+      {
+        "id": "piano",
+        "label": "Hear the piano"
+      }
+    ],
+    "bookInstruments": [
+      "Violin",
+      "Viola",
+      "Piano"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Violin",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Viola",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Piano",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "scott-metcalfe",
+    "name": "Scott Metcalfe",
+    "firstName": "Scott",
+    "photo": "/assets/img/teachers/scott-metcalfe.jpg",
+    "photoMono": "/assets/img/teachers/scott-metcalfe-c.jpg",
+    "focus": "50% 28%",
+    "eyebrow": "Piano",
+    "badge": null,
+    "intro": "Winnipeg-born, Humber-trained jazz pianist, bandleader, arranger and producer, as comfortable with classical as with jazz.",
+    "bio": [
+      "Scott Metcalfe is a Toronto pianist, educator and producer with roots in both classical and jazz. Originally from Winnipeg, he moved to Toronto in 2002 to study jazz at Humber College.",
+      "He has performed throughout the GTA and across Canada, leads his own contemporary jazz trio, and collaborates with singers and instrumentalists. He has recorded on numerous albums, arranged and produced for jazz and R&B artists, and accompanied dance from flamenco to ballet.",
+      "In lessons, he helps students of all ages build real skills, creativity and a lasting love of music."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Humber College",
+        "detail": "Jazz studies"
+      },
+      {
+        "title": "Contemporary jazz trio",
+        "detail": "Leader"
+      },
+      {
+        "title": "Albums & productions",
+        "detail": "Jazz · R&B"
+      },
+      {
+        "title": "Flamenco to ballet",
+        "detail": "Dance accompaniment"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "jazzpiano",
+        "label": "Hear jazz piano"
+      },
+      {
+        "id": "piano",
+        "label": "Hear classical piano"
+      }
+    ],
+    "bookInstruments": [
+      "Piano"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Piano",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "emmett-watters",
+    "name": "Emmett Watters",
+    "firstName": "Emmett",
+    "photo": "/assets/img/teachers/emmett-watters.jpg",
+    "photoMono": "/assets/img/teachers/emmett-watters-c.jpg",
+    "focus": "50% 30%",
+    "eyebrow": "Guitar · Piano · Ukulele",
+    "badge": null,
+    "intro": "Thirteen-plus years on guitar, a music degree from King's College in Halifax, and a band of his own, The Boo Radley Project.",
+    "bio": [
+      "Emmett Watters graduated in 2017 with a Bachelor of Music from the University of King's College in Halifax, Nova Scotia, and has been playing guitar for more than 13 years.",
+      "When he's not teaching, he's performing with his band, The Boo Radley Project.",
+      "His lessons are practical and creative: build the skills, then chase what excites you."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "University of King's College",
+        "detail": "BMus, 2017"
+      },
+      {
+        "title": "The Boo Radley Project",
+        "detail": "Guitar"
+      },
+      {
+        "title": "13+ years",
+        "detail": "On guitar"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "guitar",
+        "label": "Hear guitar"
+      },
+      {
+        "id": "piano",
+        "label": "Hear piano"
+      },
+      {
+        "id": "ukulele",
+        "label": "Hear ukulele"
+      }
+    ],
+    "bookInstruments": [
+      "Guitar",
+      "Piano",
+      "Ukulele"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Guitar",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Piano",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      },
+      {
+        "instrument": "Ukulele",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "david-jones",
+    "name": "David Jones",
+    "firstName": "David",
+    "photo": "/assets/img/teachers/david-jones.jpg",
+    "photoMono": "/assets/img/teachers/david-jones-c.jpg",
+    "focus": "50% 28%",
+    "eyebrow": "Drums · Bass · Guitar",
+    "badge": null,
+    "intro": "Touring drummer who has opened for Carly Rae Jepsen, Gord Downie and BADBADNOTGOOD, with more than two million views on his drumming TikToks.",
+    "bio": [
+      "David Jones is a multi-instrumentalist and educator who brings real stage experience into every lesson. He has toured across Canada and played as a supporting act for Collective Soul, Talib Kweli, Carly Rae Jepsen, Gord Downie, 54-40, Die Mannequin and BADBADNOTGOOD.",
+      "Online, his drumming videos on TikTok have racked up more than two million views."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Collective Soul · Talib Kweli",
+        "detail": "Supporting act"
+      },
+      {
+        "title": "Carly Rae Jepsen · Gord Downie",
+        "detail": "Supporting act"
+      },
+      {
+        "title": "54-40 · Die Mannequin",
+        "detail": "Supporting act"
+      },
+      {
+        "title": "BADBADNOTGOOD",
+        "detail": "Supporting act"
+      },
+      {
+        "title": "Across Canada",
+        "detail": "Touring"
+      },
+      {
+        "title": "TikTok",
+        "detail": "2M+ views"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "drums",
+        "label": "Hear drums"
+      },
+      {
+        "id": "bass",
+        "label": "Hear bass"
+      },
+      {
+        "id": "guitar",
+        "label": "Hear guitar"
+      }
+    ],
+    "bookInstruments": [
+      "Drums",
+      "Bass",
+      "Guitar"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Drums",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Bass",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      },
+      {
+        "instrument": "Guitar",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "slav-kuprijanov",
+    "name": "Slav Kuprijanov",
+    "firstName": "Slav",
+    "photo": "/assets/img/teachers/slav-kuprijanov.jpg",
+    "photoMono": "/assets/img/teachers/slav-kuprijanov-c.jpg",
+    "focus": "50% 30%",
+    "eyebrow": "Guitar · Ukulele · Drums",
+    "badge": null,
+    "intro": "Composer, producer and multi-instrumentalist with 20-plus years of teaching, from classical guitar to electronic production.",
+    "bio": [
+      "Slav Kuprijanov is a multi-instrumentalist, composer and educator with more than 20 years of teaching experience. He studied at the Taganrog School of Arts and Music, Trebas Institute and the Michael Pokrovsky Guitar Academy.",
+      "His expertise covers guitar, bass and drums across classical, jazz, blues, rock, pop, R&B and electronic music. He performs in a range of projects and composes and produces his own music."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Taganrog School of Arts and Music",
+        "detail": "Studies"
+      },
+      {
+        "title": "Trebas Institute",
+        "detail": "Studies"
+      },
+      {
+        "title": "Michael Pokrovsky Guitar Academy",
+        "detail": "Guitar"
+      },
+      {
+        "title": "20+ years",
+        "detail": "Teaching"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "guitar",
+        "label": "Hear guitar"
+      },
+      {
+        "id": "ukulele",
+        "label": "Hear ukulele"
+      },
+      {
+        "id": "drums",
+        "label": "Hear drums"
+      }
+    ],
+    "bookInstruments": [
+      "Guitar",
+      "Ukulele",
+      "Drums"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Guitar",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Ukulele",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Drums",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "natalie-baldocchi",
+    "name": "Natalie Baldocchi",
+    "firstName": "Natalie",
+    "photo": "/assets/img/teachers/natalie-baldocchi.jpg",
+    "photoMono": "/assets/img/teachers/natalie-baldocchi-c.jpg",
+    "focus": "50% 30%",
+    "eyebrow": "Piano · Guitar",
+    "badge": null,
+    "intro": "U of T student, RCM Level 8 pianist, and a Grove teacher for five-plus years whose guitar videos have passed 80,000 views.",
+    "bio": [
+      "Natalie Baldocchi is a Toronto-based music educator and University of Toronto student who has been teaching guitar and piano at Grove for more than five years.",
+      "She completed RCM Level 8 in piano and music theory, has studied guitar for years, and her guitar videos have reached over 80,000 views on Instagram. She plays rock, blues, jazz and classical."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Grove Music School",
+        "detail": "5+ years teaching"
+      },
+      {
+        "title": "RCM Level 8",
+        "detail": "Piano & theory"
+      },
+      {
+        "title": "University of Toronto",
+        "detail": "Student"
+      },
+      {
+        "title": "Instagram",
+        "detail": "80K+ views"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "piano",
+        "label": "Hear piano"
+      },
+      {
+        "id": "guitar",
+        "label": "Hear guitar"
+      }
+    ],
+    "bookInstruments": [
+      "Piano",
+      "Guitar"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Piano",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      },
+      {
+        "instrument": "Guitar",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "fiona-varty",
+    "name": "Fiona Varty",
+    "firstName": "Fiona",
+    "photo": "/assets/img/teachers/fiona-varty.jpg",
+    "photoMono": "/assets/img/teachers/fiona-varty-c.jpg",
+    "focus": "50% 30%",
+    "eyebrow": "Bass · Piano · Guitar",
+    "badge": "Grove alum",
+    "intro": "A Grove student turned Grove teacher, now studying jazz bass performance at the University of Toronto.",
+    "bio": [
+      "Fiona Varty started out as a Grove student, and now she's helping inspire the next generation. She's a multi-instrumentalist pursuing a Bachelor of Music in Performance at the University of Toronto, specializing in jazz bass.",
+      "She plays classical, rock and jazz, performs with her own groups, and writes original music."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "University of Toronto",
+        "detail": "BMus Performance, jazz bass"
+      },
+      {
+        "title": "Grove Music School",
+        "detail": "Former student"
+      },
+      {
+        "title": "Original music",
+        "detail": "Composer"
+      },
+      {
+        "title": "Classical · Rock · Jazz",
+        "detail": "Styles"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "bass",
+        "label": "Hear bass"
+      },
+      {
+        "id": "piano",
+        "label": "Hear piano"
+      },
+      {
+        "id": "guitar",
+        "label": "Hear guitar"
+      }
+    ],
+    "bookInstruments": [
+      "Bass",
+      "Piano",
+      "Guitar"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Bass",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      },
+      {
+        "instrument": "Piano",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      },
+      {
+        "instrument": "Guitar",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": false,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "ena-iizuka",
+    "name": "Ena Iizuka",
+    "firstName": "Ena",
+    "photo": "/assets/img/teachers/ena-iizuka.jpg",
+    "photoMono": "/assets/img/teachers/ena-iizuka-c.jpg",
+    "focus": "38% 30%",
+    "eyebrow": "Piano",
+    "badge": null,
+    "intro": "Pianist, composer and arranger who began at age three, went professional at 18 in Japan, and once hosted a jazz radio show.",
+    "bio": [
+      "Ena Iizuka is a pianist, composer, arranger and educator who has performed and taught in both Japan and Toronto. She began piano at three and started her professional career at 18, playing concerts and live shows while teaching.",
+      "After graduating from a music university in Japan, she worked as a composer and arranger, hosted a jazz radio program, and has written music for many musicians and recording projects. She plays classical, pop and jazz.",
+      "She's also a chorus teacher and especially loves working with children."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Music university, Japan",
+        "detail": "Graduate"
+      },
+      {
+        "title": "Jazz radio",
+        "detail": "Host"
+      },
+      {
+        "title": "Recording projects",
+        "detail": "Composer & arranger"
+      },
+      {
+        "title": "Chorus",
+        "detail": "Teacher"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "piano",
+        "label": "Hear classical"
+      },
+      {
+        "id": "jazzpiano",
+        "label": "Hear jazz"
+      }
+    ],
+    "bookInstruments": [
+      "Piano"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Piano",
+        "beginner": true,
+        "intermediate": true,
+        "advanced": true,
+        "tbc": false
+      }
+    ]
+  },
+  {
+    "slug": "reina-takashita",
+    "name": "Reina Takashita",
+    "firstName": "Reina",
+    "photo": "/assets/img/teachers/reina-takashita.jpg",
+    "photoMono": "/assets/img/teachers/reina-takashita-c.jpg",
+    "focus": "50% 30%",
+    "eyebrow": "Piano",
+    "badge": null,
+    "intro": "Award-winning pianist with perfect pitch who has taught in Australia, and who also loves singing, ballet and dance.",
+    "bio": [
+      "Reina Takashita fell in love with music early, inspired by her mother, also a musician. She has perfect pitch and has won numerous awards in piano competitions.",
+      "Teaching piano in Australia deepened her passion for music education. Away from the piano, she loves singing, classical ballet and dance.",
+      "Her goal is a lifelong love of music: skills, confidence and real joy at the keys."
+    ],
+    "bioIsDraft": true,
+    "credits": [
+      {
+        "title": "Piano competitions",
+        "detail": "Multiple awards"
+      },
+      {
+        "title": "Perfect pitch",
+        "detail": ""
+      },
+      {
+        "title": "Australia",
+        "detail": "Piano teacher"
+      },
+      {
+        "title": "Singing · Ballet · Dance",
+        "detail": "Also loves"
+      }
+    ],
+    "sounds": [
+      {
+        "id": "piano",
+        "label": "Hear piano"
+      }
+    ],
+    "bookInstruments": [
+      "Piano"
+    ],
+    "bookWithTeacher": true,
+    "levels": [
+      {
+        "instrument": "Piano",
+        "beginner": false,
+        "intermediate": false,
+        "advanced": false,
+        "tbc": true
+      }
+    ]
+  }
+]
