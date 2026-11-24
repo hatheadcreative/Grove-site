@@ -387,6 +387,38 @@
     if (el) { el.classList.add('is-back'); setTimeout(() => el.classList.remove('is-back'), 6000); }
   }
 
+  /* ---------------- CTA band rings ----------------
+     Logo-outline rings grow from the band's top-right corner at a constant speed and fade out
+     before the headline. Sizes snap to whole device pixels every frame so the 1px line stays crisp. */
+  const leafSets = $$('.cta-leaves');
+  if (leafSets.length && !reduced) {
+    const DUR = 6000, GAP = 2000;
+    const dpr = () => window.devicePixelRatio || 1;
+    const snap = (v) => { const d = dpr(); return Math.round((v * d) / 2) * 2 / d; }; // even device pixels keep the centre on a pixel
+    const visible = new Set();
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target))));
+      leafSets.forEach((el) => io.observe(el));
+    } else leafSets.forEach((el) => visible.add(el));
+    const start = performance.now();
+    const tick = (now) => {
+      visible.forEach((set) => {
+        const small = window.innerWidth <= 620;
+        const from = small ? 30 : 40, to = small ? 560 : 1310;
+        $$('.cta-leaf', set).forEach((ring, i) => {
+          const p = (((now - start - i * GAP) % DUR) + DUR) % DUR / DUR; // 0..1, constant speed
+          const size = snap(from + (to - from) * p);
+          const op = p < 0.06 ? (p / 0.06) * 0.5 : 0.5 * (1 - (p - 0.06) / 0.94);
+          ring.style.width = ring.style.height = size + 'px';
+          ring.style.margin = `${-size / 2}px ${-size / 2}px 0 0`;
+          ring.style.opacity = op.toFixed(3);
+        });
+      });
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
   /* ---------------- Booking form ---------------- */
   const form = $('[data-booking]');
   if (form) {
