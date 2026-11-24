@@ -285,12 +285,12 @@ body{color:#FFFFFF;font-family:'Open Sauce Sans',system-ui,sans-serif;font-size:
 .mapcard{min-height:300px !important}
 .map-placeholder{bottom:96px}
 .contact-tiles strong{font-size:16px !important}
-/* CTA band: leaf-shaped button with leaf rings expanding from it at a constant speed */
+/* CTA band: logo-outline rings expanding from the top-right corner at a constant speed */
 .cta-band{position:relative;overflow:hidden;isolation:isolate}
-.cta-btn{position:relative;display:inline-flex}
-.btn-leaf{position:relative;border-radius:26px 0 26px 0}
-.cta-ring{position:absolute;inset:0;border:1.5px solid #0D1813;border-radius:26px 0 26px 0;pointer-events:none;z-index:-1;opacity:0;animation:ctaLeafRing 4.5s linear infinite}
-.cta-ring:nth-child(2){animation-delay:1.5s}
-.cta-ring:nth-child(3){animation-delay:3s}
-@keyframes ctaLeafRing{0%{inset:0;border-radius:26px 0 26px 0;opacity:0}6%{opacity:.55}100%{inset:-190px;border-radius:216px 0 216px 0;opacity:0}}
-@media (prefers-reduced-motion: reduce){.cta-ring{display:none}}
+.cta-band > :not(.cta-leaf){position:relative;z-index:1}
+.cta-leaf{position:absolute;top:0;right:90px;width:40px;height:40px;transform:translate(50%,-50%);border:1.5px solid #0D1813;border-radius:50% 0 50% 0;pointer-events:none;z-index:0;opacity:0;animation:ctaLeaf 6.6s linear infinite}
+.cta-leaf:nth-child(2){animation-delay:2.2s}
+.cta-leaf:nth-child(3){animation-delay:4.4s}
+@keyframes ctaLeaf{0%{width:40px;height:40px;opacity:0}5%{opacity:.5}35%{opacity:.4}100%{width:1900px;height:1900px;opacity:0}}
+@media (max-width:620px){.cta-leaf{right:40px}@keyframes ctaLeaf{0%{width:30px;height:30px;opacity:0}5%{opacity:.5}100%{width:1100px;height:1100px;opacity:0}}}
+@media (prefers-reduced-motion: reduce){.cta-leaf{display:none}}
