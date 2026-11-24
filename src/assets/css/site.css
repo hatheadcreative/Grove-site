@@ -288,13 +288,15 @@ body{color:#FFFFFF;font-family:'Open Sauce Sans',system-ui,sans-serif;font-size:
 /* CTA band: rippling Grove-leaf rings */
 .cta-band{position:relative;overflow:hidden;isolation:isolate}
 .cta-band > :not(.cta-art){position:relative;z-index:1}
-.cta-art{position:absolute;right:-280px;top:-310px;width:640px;height:640px;pointer-events:none;z-index:0;overflow:visible}
+.cta-art{position:absolute;right:-250px;bottom:-270px;width:640px;height:640px;pointer-events:none;z-index:0;overflow:visible}
 .cta-art path{fill:none;stroke:#0D1813;stroke-width:2;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:center}
-.cta-art .halo{opacity:.2;transform:scale(var(--s,1))}
-.cta-art .ripple{opacity:0;animation:ctaRipple 6s cubic-bezier(.22,.61,.36,1) infinite}
-@keyframes ctaRipple{0%{transform:scale(.5);opacity:0}10%{opacity:.5}100%{transform:scale(3.4);opacity:0}}
-.cta-art .cta-mark path{fill:#0D1813;stroke:none;opacity:.18}
-.cta-art .cta-mark{transform-box:fill-box;transform-origin:center;animation:ctaBeat 2.5s ease-in-out infinite}
-@keyframes ctaBeat{0%,100%{opacity:1}50%{opacity:.55}}
-@media (max-width:620px){.cta-art{width:400px;height:400px;right:-170px;top:-190px}}
-@media (prefers-reduced-motion: reduce){.cta-art .ripple{opacity:0}}
+/* Each ring: appears small, expands fast then slows, and fades out gradually as it nears full size. */
+.cta-art .ripple{opacity:0;animation:ctaRipple 8s cubic-bezier(.2,.55,.35,1) infinite}
+@keyframes ctaRipple{
+  0%{transform:scale(.25);opacity:0}
+  6%{opacity:.42}
+  45%{opacity:.36}
+  100%{transform:scale(7);opacity:0}
+}
+@media (max-width:620px){.cta-art{width:400px;height:400px;right:-160px;bottom:-170px}}
+@media (prefers-reduced-motion: reduce){.cta-art{display:none}}
