@@ -290,6 +290,5 @@ body{color:#FFFFFF;font-family:'Open Sauce Sans',system-ui,sans-serif;font-size:
 .cta-btn{position:relative;display:inline-flex}
 .cta-btn .btn{position:relative}
 .cta-art{position:absolute;left:50%;top:50%;width:600px;height:600px;transform:translate(-50%,-50%);pointer-events:none;z-index:-1;overflow:visible}
-.cta-art path{fill:none;stroke:#0D1813;stroke-width:2;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:center;opacity:0;animation:ctaSonar 3.6s cubic-bezier(.25,.6,.4,1) infinite}
-@keyframes ctaSonar{0%{transform:scale(1.15);opacity:0}12%{opacity:.5}100%{transform:scale(3.2);opacity:0}}
+.cta-art path{fill:none;stroke:#0D1813;stroke-width:1.5;vector-effect:non-scaling-stroke}
 @media (prefers-reduced-motion: reduce){.cta-art{display:none}}
