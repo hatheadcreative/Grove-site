@@ -285,10 +285,12 @@ body{color:#FFFFFF;font-family:'Open Sauce Sans',system-ui,sans-serif;font-size:
 .mapcard{min-height:300px !important}
 .map-placeholder{bottom:96px}
 .contact-tiles strong{font-size:16px !important}
-/* CTA band: Grove-leaf "sonar" pulsing out from behind the button */
+/* CTA band: leaf-shaped button with leaf rings expanding from it at a constant speed */
 .cta-band{position:relative;overflow:hidden;isolation:isolate}
 .cta-btn{position:relative;display:inline-flex}
-.cta-btn .btn{position:relative}
-.cta-art{position:absolute;left:50%;top:50%;width:600px;height:600px;transform:translate(-50%,-50%);pointer-events:none;z-index:-1;overflow:visible}
-.cta-art path{fill:none;stroke:#0D1813;stroke-width:1.5;vector-effect:non-scaling-stroke}
-@media (prefers-reduced-motion: reduce){.cta-art{display:none}}
+.btn-leaf{position:relative;border-radius:26px 0 26px 0}
+.cta-ring{position:absolute;inset:0;border:1.5px solid #0D1813;border-radius:26px 0 26px 0;pointer-events:none;z-index:-1;opacity:0;animation:ctaLeafRing 4.5s linear infinite}
+.cta-ring:nth-child(2){animation-delay:1.5s}
+.cta-ring:nth-child(3){animation-delay:3s}
+@keyframes ctaLeafRing{0%{inset:0;border-radius:26px 0 26px 0;opacity:0}6%{opacity:.55}100%{inset:-190px;border-radius:216px 0 216px 0;opacity:0}}
+@media (prefers-reduced-motion: reduce){.cta-ring{display:none}}
