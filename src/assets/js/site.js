@@ -121,7 +121,7 @@
   const SAMPLE_SETS = {
     piano: ['C3', 'Ds3', 'Fs3', 'A3', 'C4', 'Ds4', 'Fs4', 'A4', 'C5', 'Ds5', 'Fs5', 'A5', 'C6'],
     guitar: ['E2', 'B2', 'E3', 'G3', 'B3', 'D4', 'E4', 'G4', 'B4'],
-    ukulele: ['Cs4', 'Ds4', 'E4', 'Fs4', 'Gs4', 'A4', 'B4', 'Cs5'],
+    ukulele: ['strum-c6'],
     bass: ['Cs2', 'E2', 'G2', 'As2', 'Cs3'],
     violin: ['E5', 'G5', 'C6'],
     viola: ['C4', 'E4', 'G4'],
@@ -138,7 +138,7 @@
     loading[inst] = Promise.all(SAMPLE_SETS[inst].map((n) =>
       fetch(`/assets/audio/${inst}/${n}.mp3`).then((r) => { if (!r.ok) throw new Error(n); return r.arrayBuffer(); })
         .then((ab) => new Promise((res, rej) => A.ctx.decodeAudioData(ab, res, rej)))
-        .then((buf) => (inst === 'drums' ? { name: n, buf } : { midi: midiOf(n), buf }))
+        .then((buf) => (inst === 'drums' || inst === 'ukulele' ? { name: n, buf } : { midi: midiOf(n), buf }))
     )).then((list) => (loaded[inst] = list)).catch(() => { loading[inst] = null; return null; });
     return loading[inst];
   }
@@ -164,12 +164,16 @@
   }
 
   // One-shot drum hit from the recorded kit (VCSL, CC0).
-  function hit(name, t, vol) {
-    const set = loaded.drums; if (!set) return false;
+  function hit(name, t, vol, o) {
+    o = o || {}; const set = loaded[o.set || 'drums']; if (!set) return false;
     const s = set.find((x) => x.name === name); if (!s) return false;
     const src = A.ctx.createBufferSource(); src.buffer = s.buf;
-    const g = A.ctx.createGain(); g.gain.value = vol == null ? 0.8 : vol;
+    if (o.semis) src.playbackRate.value = Math.pow(2, o.semis / 12);
+    const g = A.ctx.createGain(); const v = vol == null ? 0.8 : vol;
+    g.gain.setValueAtTime(v, t);
+    if (o.dur) { g.gain.setValueAtTime(v, t + o.dur); g.gain.exponentialRampToValueAtTime(0.0001, t + o.dur + 0.12); }
     src.connect(g); g.connect(A.master); src.start(t);
+    if (o.dur) src.stop(t + o.dur + 0.15);
     return true;
   }
   // A real-kit groove at 112 BPM: hats on eighths, kick on 1 and 3 (plus a push), snare on 2 and 4.
@@ -209,7 +213,15 @@
         if (has('guitar')) { strum('guitar', [[0, [40, 47, 52, 55, 59, 64]], [0.55, [40, 47, 52, 55, 59, 64]], [1.05, [47, 55, 59, 62, 67, 71]]], 2.0, 0.028, 0.45); return 2.8; }
         break;
       case 'ukulele':
-        if (has('ukulele')) { strum('ukulele', [[0, [67, 60, 64, 69]], [0.3, [67, 60, 64, 69]], [0.6, [67, 60, 64, 69]], [0.9, [67, 62, 65, 71]], [1.2, [67, 60, 64, 72]]], 1.3, 0.02, 0.45); return 2.4; }
+        if (has('ukulele')) {
+          // Island strum on a real C6 chord: down, down-up, up-down-up, then F6 (+5) and back to C6 to ring out.
+          const U = (at, semis, vol, dur) => hit('strum-c6', t + at, vol, { set: 'ukulele', semis, dur });
+          const q = 0.27;
+          [[0, 0, 0.9, 0.25], [q, 0, 0.8, 0.13], [1.5 * q, 0, 0.45, 0.12], [2.5 * q, 0, 0.5, 0.12], [3 * q, 0, 0.8, 0.13], [3.5 * q, 0, 0.45, 0.12],
+           [4 * q, 5, 0.85, 0.25], [5 * q, 5, 0.75, 0.13], [5.5 * q, 5, 0.42, 0.12], [6.5 * q, 5, 0.48, 0.12]].forEach(([at, se, v, d]) => U(at, se, v, d));
+          U(7 * q, 0, 0.95, 1.6);
+          return 7 * q + 1.9;
+        }
         break;
       case 'bass':
         if (has('bass')) { [36, 43, 48, 43, 41, 45, 48].forEach((n, i) => S('bass', n, i * 0.26, 0.5, 0.9)); return 2.2; }

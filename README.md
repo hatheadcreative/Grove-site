@@ -10,6 +10,7 @@ Staging only, not indexed by search engines.
 
 ## Credits
 
-- Instrument samples (piano, guitar, bass, violin): [tonejs-instruments](https://github.com/nbrosowsky/tonejs-instruments) by Nicholaus Brosowsky, licensed [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Trimmed, faded and loudness-matched for the web. The ukulele uses high nylon-guitar notes, and the viola uses the violin's lower notes.
+- Instrument samples (piano, guitar, bass, violin): [tonejs-instruments](https://github.com/nbrosowsky/tonejs-instruments) by Nicholaus Brosowsky, licensed [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Trimmed, faded and loudness-matched for the web. The viola uses the violin's lower notes.
+- Ukulele: an open C6 strum recorded by [Sadiquecat on Freesound](https://freesound.org/people/Sadiquecat/sounds/727214/), CC0 public domain. The strum pattern re-triggers it, pitching it up for the F chord.
 - Drum hits (kick, snare, hi-hats): [Versilian Community Sample Library (VCSL)](https://github.com/sgossner/VCSL) by Versilian Studios, CC0 public domain. The orchestral bass drum is pitched up and compressed to work as a kit kick.
 - Font: Open Sauce Sans, © The Open Sauce Sans Authors ([marcologous/Open-Sauce-Fonts](https://github.com/marcologous/Open-Sauce-Fonts)), SIL Open Font License 1.1 (see `licenses/`).
