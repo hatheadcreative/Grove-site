@@ -7,7 +7,8 @@
   {
     "id": "voice",
     "name": "Voice",
-    "line": "Find your voice, build confidence and sing what you love."
+    "line": "Find your voice, build confidence and sing what you love.",
+    "sound": false
   },
   {
     "id": "guitar",

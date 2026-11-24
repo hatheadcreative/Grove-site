@@ -115,51 +115,138 @@
     return b;
   }
 
-  // Returns the phrase length in seconds.
-  function playSound(id) {
-    if (!ensure()) return 0;
-    const t = A.ctx.currentTime + 0.04; let len = 2.4;
-    const strum = (chords, dur, o) => chords.forEach(([dt, ch]) => ch.forEach((n, i) => pluck(hz(n), t + dt + i * (o.spread || 0.024), dur, o)));
+  /* ---------------- Recorded samples ----------------
+     Real instrument recordings (tonejs-instruments, CC BY 3.0), pitch-shifted to the nearest note.
+     Each instrument loads only when it's first needed. */
+  const SAMPLE_SETS = {
+    piano: ['C3', 'Ds3', 'Fs3', 'A3', 'C4', 'Ds4', 'Fs4', 'A4', 'C5', 'Ds5', 'Fs5', 'A5', 'C6'],
+    guitar: ['E2', 'B2', 'E3', 'G3', 'B3', 'D4', 'E4', 'G4', 'B4'],
+    ukulele: ['Cs4', 'Ds4', 'E4', 'Fs4', 'Gs4', 'A4', 'B4', 'Cs5'],
+    bass: ['Cs2', 'E2', 'G2', 'As2', 'Cs3'],
+    violin: ['E5', 'G5', 'C6'],
+    viola: ['C4', 'E4', 'G4']
+  };
+  const PC = { C: 0, Cs: 1, D: 2, Ds: 3, E: 4, F: 5, Fs: 6, G: 7, Gs: 8, A: 9, As: 10, B: 11 };
+  const midiOf = (n) => { const m = n.match(/^([A-G]s?)(\d)$/); return (+m[2] + 1) * 12 + PC[m[1]]; };
+  const loaded = {}; const loading = {};
+  function loadSet(inst) {
+    if (loaded[inst]) return Promise.resolve(loaded[inst]);
+    if (loading[inst]) return loading[inst];
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC || !SAMPLE_SETS[inst]) return Promise.resolve(null);
+    if (!A.ctx) { ensureCtxOnly(); }
+    loading[inst] = Promise.all(SAMPLE_SETS[inst].map((n) =>
+      fetch(`/assets/audio/${inst}/${n}.mp3`).then((r) => { if (!r.ok) throw new Error(n); return r.arrayBuffer(); })
+        .then((ab) => new Promise((res, rej) => A.ctx.decodeAudioData(ab, res, rej)))
+        .then((buf) => ({ midi: midiOf(n), buf }))
+    )).then((list) => (loaded[inst] = list)).catch(() => { loading[inst] = null; return null; });
+    return loading[inst];
+  }
+  function ensureCtxOnly() {
+    // Create the audio graph without resuming it (allowed before any click); ensure() resumes on click.
+    const resume = A.ctx && A.ctx.state === 'suspended';
+    if (!A.ctx) { ensure(); if (A.ctx && A.ctx.state === 'running' && !userGestured) A.ctx.suspend(); }
+    return resume;
+  }
+  let userGestured = false;
+  ['pointerdown', 'keydown'].forEach((ev) => window.addEventListener(ev, () => { userGestured = true; }, { once: true, capture: true }));
+  function sample(inst, midi, t, dur, vol) {
+    const set = loaded[inst]; if (!set) return false;
+    let best = set[0];
+    set.forEach((s) => { if (Math.abs(s.midi - midi) < Math.abs(best.midi - midi)) best = s; });
+    const x = A.ctx; const src = x.createBufferSource(); src.buffer = best.buf;
+    src.playbackRate.value = Math.pow(2, (midi - best.midi) / 12);
+    const g = x.createGain(); const v = vol == null ? 0.8 : vol;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.008);
+    g.gain.setValueAtTime(v, t + Math.max(0.05, dur - 0.05)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.3);
+    src.connect(g); g.connect(A.master); src.start(t); src.stop(t + dur + 0.35);
+    return true;
+  }
+
+  // Schedules a phrase; returns its length in seconds. Uses recordings when loaded, synth otherwise.
+  function phrase(id, t) {
+    const S = (inst, n, at, dur, vol) => sample(inst, n, t + at, dur, vol);
+    const has = (inst) => !!loaded[inst];
+    const strum = (inst, chords, dur, spread, vol) => chords.forEach(([dt, ch]) => ch.forEach((n, i) => S(inst, n, dt + i * spread, dur, vol)));
     switch (id) {
-      case 'piano': [60, 64, 67, 72, 76, 79].forEach((n, i) => piano(hz(n), t + i * 0.11, 1.9)); len = 2.3; break;
+      case 'piano':
+        if (has('piano')) { [60, 64, 67, 72, 76, 79].forEach((n, i) => S('piano', n, i * 0.11, 2.1, 0.6)); return 2.4; }
+        [60, 64, 67, 72, 76, 79].forEach((n, i) => piano(hz(n), t + i * 0.11, 1.9)); return 2.3;
       case 'jazzpiano':
-        [[50, 53, 57, 60, 64], [55, 59, 62, 65, 69], [48, 52, 55, 59, 62]].forEach((ch, k) => ch.forEach((n, i) => piano(hz(n), t + k * 0.62 + i * 0.03, 1.4, 0.2)));
-        [76, 74, 72, 71, 72].forEach((n, i) => piano(hz(n), t + 0.15 + i * 0.31 + (i % 2 ? 0.08 : 0), 0.6, 0.24)); len = 2.6; break;
-      case 'guitar': strum([[0, [52, 59, 64, 67, 71, 76]], [0.5, [52, 59, 64, 67, 71, 76]], [0.95, [55, 59, 62, 67, 71, 79]]], 2.2, { damp: 0.995, lp: 4200, vol: 0.3 }); len = 2.5; break;
-      case 'ukulele': strum([[0, [67, 60, 64, 69]], [0.28, [67, 60, 64, 69]], [0.56, [67, 60, 64, 69]], [0.84, [67, 62, 65, 71]], [1.12, [67, 60, 64, 72]]], 1.4, { damp: 0.991, lp: 5200, vol: 0.32, spread: 0.018 }); len = 2; break;
-      case 'bass': [36, 43, 48, 43, 41, 45, 48].forEach((n, i) => pluck(hz(n), t + i * 0.25, 1.4, { damp: 0.997, lp: 900, vol: 0.9 })); len = 2.1; break;
-      case 'violin': bowed(hz(76), t, 0.8, 0.16); bowed(hz(79), t + 0.75, 0.6, 0.16); bowed(hz(84), t + 1.3, 1.3, 0.18); len = 2.7; break;
-      case 'viola': bowed(hz(60), t, 0.9, 0.2, true); bowed(hz(64), t + 0.85, 0.7, 0.2, true); bowed(hz(67), t + 1.5, 1.3, 0.22, true); len = 2.9; break;
-      case 'voice': voice(hz(67), t, 0.9); voice(hz(72), t + 0.85, 1.4); break;
-      case 'drums': { const b = groove(t, 1); kick(t + 3.5 * b); kick(t + 4 * b); noise(t + 4 * b, 0.9, 'highpass', 5000, 0.22); len = 3; break; }
+        if (has('piano')) {
+          [[50, 53, 57, 60, 64], [55, 59, 62, 65, 69], [48, 52, 55, 59, 62]].forEach((ch, k) => ch.forEach((n, i) => S('piano', n, k * 0.62 + i * 0.03, 1.3, 0.35)));
+          [76, 74, 72, 71, 72].forEach((n, i) => S('piano', n, 0.15 + i * 0.31 + (i % 2 ? 0.08 : 0), 0.55, 0.5)); return 2.6;
+        }
+        [[50, 53, 57, 60, 64], [55, 59, 62, 65, 69], [48, 52, 55, 59, 62]].forEach((ch, k) => ch.forEach((n, i) => piano(hz(n), t + k * 0.62 + i * 0.03, 1.4, 0.2))); return 2.6;
+      case 'guitar':
+        if (has('guitar')) { strum('guitar', [[0, [40, 47, 52, 55, 59, 64]], [0.55, [40, 47, 52, 55, 59, 64]], [1.05, [47, 55, 59, 62, 67, 71]]], 2.0, 0.028, 0.45); return 2.8; }
+        break;
+      case 'ukulele':
+        if (has('ukulele')) { strum('ukulele', [[0, [67, 60, 64, 69]], [0.3, [67, 60, 64, 69]], [0.6, [67, 60, 64, 69]], [0.9, [67, 62, 65, 71]], [1.2, [67, 60, 64, 72]]], 1.3, 0.02, 0.45); return 2.4; }
+        break;
+      case 'bass':
+        if (has('bass')) { [36, 43, 48, 43, 41, 45, 48].forEach((n, i) => S('bass', n, i * 0.26, 0.5, 0.9)); return 2.2; }
+        break;
+      case 'violin':
+        if (has('violin')) { S('violin', 76, 0, 0.75, 0.7); S('violin', 79, 0.72, 0.55, 0.7); S('violin', 84, 1.25, 1.3, 0.75); return 2.8; }
+        break;
+      case 'viola':
+        if (has('viola')) { S('viola', 60, 0, 0.85, 0.75); S('viola', 64, 0.82, 0.65, 0.75); S('viola', 67, 1.45, 1.3, 0.8); return 3; }
+        break;
+      case 'drums': { const b = groove(t, 1); kick(t + 3.5 * b); kick(t + 4 * b); noise(t + 4 * b, 0.9, 'highpass', 5000, 0.22); return 3; }
       case 'band': {
         const b = groove(t, 2);
-        [36, 36, 43, 43, 41, 41, 43, 47].forEach((n, i) => pluck(hz(n), t + i * b, b * 0.95, { damp: 0.997, lp: 900, vol: 0.8 }));
-        [[60, 64, 67], [60, 64, 67], [53, 57, 60, 65], [55, 59, 62, 67]].forEach((ch, k) => ch.forEach((n) => piano(hz(n + 12), t + k * 2 * b, 2 * b, 0.12)));
-        len = 8 * b + 0.6; break;
+        [36, 36, 43, 43, 41, 41, 43, 47].forEach((n, i) => { if (!S('bass', n, i * b, b * 0.9, 0.85)) pluck(hz(n), t + i * b, b * 0.95, { damp: 0.997, lp: 900, vol: 0.8 }); });
+        [[60, 64, 67], [60, 64, 67], [53, 57, 60, 65], [55, 59, 62, 67]].forEach((ch, k) => ch.forEach((n) => { if (!S('piano', n + 12, k * 2 * b, 2 * b, 0.22)) piano(hz(n + 12), t + k * 2 * b, 2 * b, 0.12); }));
+        return 8 * b + 0.6;
       }
     }
-    return len;
+    // Synth fallback (only if recordings failed to load)
+    const strumSyn = (chords, dur, o) => chords.forEach(([dt, ch]) => ch.forEach((n, i) => pluck(hz(n), t + dt + i * (o.spread || 0.024), dur, o)));
+    if (id === 'guitar') { strumSyn([[0, [52, 59, 64, 67, 71, 76]], [0.5, [52, 59, 64, 67, 71, 76]]], 2.2, { damp: 0.995, lp: 4200, vol: 0.3 }); return 2.5; }
+    if (id === 'ukulele') { strumSyn([[0, [67, 60, 64, 69]], [0.28, [67, 60, 64, 69]]], 1.4, { damp: 0.991, lp: 5200, vol: 0.32, spread: 0.018 }); return 2; }
+    if (id === 'bass') { [36, 43, 48, 43, 41, 45, 48].forEach((n, i) => pluck(hz(n), t + i * 0.25, 1.4, { damp: 0.997, lp: 900, vol: 0.9 })); return 2.1; }
+    if (id === 'violin') { bowed(hz(76), t, 0.8, 0.16); bowed(hz(79), t + 0.75, 0.6, 0.16); bowed(hz(84), t + 1.3, 1.3, 0.18); return 2.7; }
+    if (id === 'viola') { bowed(hz(60), t, 0.9, 0.2, true); bowed(hz(64), t + 0.85, 0.7, 0.2, true); bowed(hz(67), t + 1.5, 1.3, 0.22, true); return 2.9; }
+    return 0;
   }
+  const SETS_FOR = { piano: ['piano'], jazzpiano: ['piano'], guitar: ['guitar'], ukulele: ['ukulele'], bass: ['bass'], violin: ['violin'], viola: ['viola'], band: ['bass', 'piano'], drums: [] };
+  // Plays a phrase once its recordings are ready; resolves to the phrase length.
+  function playSound(id) {
+    if (!ensure()) return Promise.resolve(0);
+    return Promise.all((SETS_FOR[id] || []).map(loadSet)).then(() => phrase(id, A.ctx.currentTime + 0.05));
+  }
+  const preload = (id) => (SETS_FOR[id] || []).forEach((inst) => { if (!loaded[inst]) loadSet(inst); });
 
   /* ---------------- Play buttons (instrument cards, teacher "Hear" buttons) ---------------- */
   let playTimer;
   $$('[data-play]').forEach((btn) => btn.addEventListener('click', () => {
     const id = btn.dataset.play;
-    const len = playSound(id);
     $$('.inst.is-playing, .hear.on').forEach((el) => el.classList.remove('is-playing', 'on'));
     const card = btn.closest('.inst'); const target = card || btn;
     target.classList.add(card ? 'is-playing' : 'on');
     clearTimeout(playTimer);
-    playTimer = setTimeout(() => target.classList.remove('is-playing', 'on'), len * 1000);
+    playSound(id).then((len) => {
+      clearTimeout(playTimer);
+      playTimer = setTimeout(() => target.classList.remove('is-playing', 'on'), Math.max(len, 0.3) * 1000);
+    });
   }));
+  // Warm up recordings when a play button is about to be used.
+  $$('[data-play]').forEach((btn) => {
+    const warm = () => { if (userGestured) preload(btn.dataset.play); };
+    btn.addEventListener('pointerenter', warm); btn.addEventListener('focus', warm);
+  });
 
   /* ---------------- Keyboard ---------------- */
   const flash = (midi, ms) => {
     const k = $(`[data-midi="${midi}"]`); if (!k) return;
     k.classList.add('on'); setTimeout(() => k.classList.remove('on'), ms);
   };
-  const press = (midi) => { if (ensure()) piano(hz(midi), A.ctx.currentTime + 0.005, 1.7); flash(midi, 200); };
+  const press = (midi) => {
+    if (ensure()) { const t = A.ctx.currentTime + 0.005; if (!sample('piano', midi, t, 1.6, 0.7)) { piano(hz(midi), t, 1.7); loadSet('piano'); } }
+    flash(midi, 200);
+  };
+  const kbd = $('.kbd');
+  if (kbd) ['pointerenter', 'focusin'].forEach((ev) => kbd.addEventListener(ev, () => { if (userGestured || ev === 'focusin') loadSet('piano'); }, { once: true }));
   $$('[data-midi]').forEach((k) => {
     const m = +k.dataset.midi;
     k.addEventListener('pointerdown', (e) => { e.preventDefault(); press(m); });
@@ -171,14 +258,18 @@
     demoBtn.addEventListener('click', () => {
       if (busy || !ensure()) return; busy = true;
       const label = $('[data-demo-label]', demoBtn); if (label) label.textContent = 'Playing…';
-      const tune = [60, 60, 67, 67, 69, 69, 67, null, 65, 65, 64, 64, 62, 62, 60];
-      const step = 0.38; const t0 = A.ctx.currentTime + 0.05;
-      tune.forEach((n, i) => {
-        if (n === null) return;
-        piano(hz(n), t0 + i * step, 1.2); piano(hz(n - 12), t0 + i * step, 1.2);
-        setTimeout(() => flash(n, step * 800), 50 + i * step * 1000);
+      loadSet('piano').then(() => {
+        const tune = [60, 60, 67, 67, 69, 69, 67, null, 65, 65, 64, 64, 62, 62, 60];
+        const step = 0.38; const t0 = A.ctx.currentTime + 0.05;
+        tune.forEach((n, i) => {
+          if (n === null) return;
+          const dur = n === 67 && i === 6 ? 0.7 : 0.4;
+          if (!sample('piano', n, t0 + i * step, dur, 0.6)) piano(hz(n), t0 + i * step, 1.2);
+          if (!sample('piano', n - 12, t0 + i * step, dur, 0.35)) piano(hz(n - 12), t0 + i * step, 1.2);
+          setTimeout(() => flash(n, step * 800), 50 + i * step * 1000);
+        });
+        setTimeout(() => { busy = false; if (label) label.textContent = 'Hear a demo'; }, tune.length * step * 1000 + 600);
       });
-      setTimeout(() => { busy = false; if (label) label.textContent = 'Hear a demo'; }, tune.length * step * 1000 + 600);
     });
   }
 
@@ -322,7 +413,7 @@
         ? `Thanks! We'll be in touch to schedule a free ${summary} trial.`
         : `Thanks! We'll confirm the ${summary} spot for 2026/27.`;
       form.hidden = true; done.hidden = false; done.focus && done.setAttribute('tabindex', '-1'); done.focus();
-      if (ensure()) { const t = A.ctx.currentTime + 0.03; [72, 76, 79, 84].forEach((n, i) => piano(hz(n), t + i * 0.09, 1.6)); }
+      if (ensure()) { loadSet('piano').then(() => { const t = A.ctx.currentTime + 0.03; [72, 76, 79, 84].forEach((n, i) => { if (!sample('piano', n, t + i * 0.09, 1.4, 0.5)) piano(hz(n), t + i * 0.09, 1.6); }); }); }
     });
     const reset = $('[data-booking-reset]');
     if (reset) reset.addEventListener('click', () => { form.reset(); goals.clear(); $$('[data-toggle="goal"]', form).forEach((b) => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }); done.hidden = true; form.hidden = false; render(); });

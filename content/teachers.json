@@ -100,10 +100,6 @@
     ],
     "sounds": [
       {
-        "id": "voice",
-        "label": "Hear voice"
-      },
-      {
         "id": "piano",
         "label": "Hear piano"
       },
