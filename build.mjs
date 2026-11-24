@@ -3,6 +3,7 @@
 // Later, swap loadContent() to fetch from Sanity; templates stay the same.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { page } from './lib/layout.mjs';
 import { home, programs, teachersIndex, tuitionPage, book, teacherPage } from './lib/pages.mjs';
 
@@ -26,6 +27,9 @@ function write(path, html) {
 }
 
 const c = loadContent();
+// Fingerprint CSS/JS so every deploy busts browser caches.
+const fp = (f) => createHash('sha1').update(readFileSync(f)).digest('hex').slice(0, 10);
+c.site.assetVersion = fp('src/assets/css/site.css') + fp('src/assets/js/site.js');
 const { site } = c;
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
